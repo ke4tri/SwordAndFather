@@ -14,16 +14,34 @@ namespace SwordAndFather.Controllers
 
     public class UsersController : ControllerBase
     {
-        static List<User> _users = new List<User>(); // static and instantce members
+        readonly UserRepository _userRepository;
+        readonly CreateUserRequestValidator _validator;
+
+        public UsersController()
+        {
+            _userRepository = new UserRepository();
+            _validator = new CreateUserRequestValidator();
+
+        }
 
         [HttpPost("register")]
-        public int AddUser(User newUser)
+        public ActionResult<int> AddUser(CreateUserRequest createRequest)
         {
 
-            //var newUser = new User(username, password);
-            newUser.Id = _users.Count + 1;
-            _users.Add(newUser);
-            return newUser.Id;
+            var validator = new CreateUserRequestValidator();
+            //validation
+            if (!_validator.Validate(createRequest)) 
+            {
+                return BadRequest(new { error = "users must have a username and password" });
+            }
+
+
+           
+            var newUser = _userRepository.AddUser(createRequest.Username, createRequest.Password);
+
+
+            //http response
+            return Created($"api/users/{newUser.Id}", newUser);
         }
     }
 }
