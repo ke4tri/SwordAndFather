@@ -1,59 +1,75 @@
-﻿using System;
+﻿using Dapper;
+using SwordAndFather.Models;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using SwordAndFather.Models;
 
 namespace SwordAndFather.Data
 {
-    // Stores Users with the UserRepository
-    // They do not just do one thing though
     public class UserRepository
     {
-        static List<User> _users = new List<User>(); // static and instantce members
+        const string ConnectionString = "Server=localhost;Database=SwordAndFather;Trusted_Connection=True;";
 
-        public User AddUser(string userName, string password)
+        public User AddUser(string username, string password)
         {
-            //datavase-y sort of thing
-            var newUser = new User(userName, password);
-
-            newUser.Id = _users.Count + 1;
-
-            _users.Add(newUser);
-
-            return newUser;
-        }
-
-        public List<User> GetAll()
-        {
-            var users = new List<User>();
-            var connection = new SqlConnection("Server=localhost;Database=SwordAndFather; Trusted_Connection = True;");
-            connection.Open();
-
-            var getAllUsersCommand = connection.CreateCommand();
-            getAllUsersCommand.CommandText = "select * from users";
-
-            var reader = getAllUsersCommand.ExecuteReader();
-
-
-            while (reader.Read())
+            using (var db = new SqlConnection(ConnectionString))
             {
-                //returns object not int
-                //var Id = reader[0];
-                //var Id = (int)reader[0];
-                //var Id = reader.GetInt32(0);
-                var id = (int)reader["Id"];
-                var username = reader["username"].ToString();
-                var password = reader["password"].ToString();
-                var user = new User(username, password) { Id = id } ;
+                var newUser = db.QueryFirstOrDefault<User>(@"
+                    Insert into users (username,password)
+                    Output inserted.*
+                    Values(@username,@password)",
+                    new { username, password });
 
-                users.Add(user);
+                if (newUser != null)
+                {
+                    return newUser;
+                }
             }
-            connection.Close();
-            return users;
-        }
-            
 
+            throw new Exception("No user created");
+        }
+
+        public void DeleteUser(int userId)
+        {
+            using (var db = new SqlConnection(ConnectionString))
+            {
+                var parameter = new { Id = userId };
+
+                var deleteQuery = "Delete From Users where Id = @id";
+
+                var rowsAffected = db.Execute(deleteQuery, parameter);
+
+                if (rowsAffected != 1)
+                {
+                    throw new Exception("Didn't do right");
+                }
+            }
+        }
+
+        public User UpdateUser(User userToUpdate)
+        {
+            using (var db = new SqlConnection(ConnectionString))
+            {
+                var sql = @"Update Users
+                            Set username = @username,
+                                password = @password
+                            Where id = @id";
+
+                var rowsAffected = db.Execute(sql, userToUpdate);
+
+                if (rowsAffected == 1)
+                    return userToUpdate;
+            }
+
+            throw new Exception("Could not update user");
+        }
+
+        public IEnumerable<User> GetAll()
+        {
+            using (var db = new SqlConnection(ConnectionString))
+            {
+                return db.Query<User>("select username, password, id from users");
+            }
+        }
     }
 }
