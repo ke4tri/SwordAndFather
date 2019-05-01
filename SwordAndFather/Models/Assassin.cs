@@ -7,12 +7,11 @@ namespace SwordAndFather.Models
 {
     public class Assassin
     {
-        public Assassin(string codeName, string catchphrase, string preferedWeapon)
+        public Assassin(string codeName, string catchphrase, string preferredWeapon)
         {
             CodeName = codeName;
             Catchphrase = catchphrase;
-            PreferredWeapon = preferedWeapon;
-
+            PreferredWeapon = preferredWeapon;
         }
 
         public int Id { get; set; }

@@ -7,11 +7,13 @@ namespace SwordAndFather.Models
 {
     public class User
     {
-        public User(string username, string password)
-        {
-            Username = username;
-            Password = password;
-        }
+        //public User(string username, string password)
+        //{
+        //    Username = username;
+        //    Password = password;
+        //}
+        // we are going to go with no constructor 
+       // public User() { }
         
         public int Id { get; set; }
         public string Username { get; set; }

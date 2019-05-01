@@ -6,6 +6,7 @@ namespace SwordAndFather.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //users from UsersController is the url call
     public class UsersController : ControllerBase
     {
         readonly UserRepository _userRepository;
