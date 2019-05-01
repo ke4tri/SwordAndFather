@@ -9,10 +9,21 @@ using SwordAndFather.Models;
 
 namespace SwordAndFather.Controllers
 {
+
+    
+
     [Route("api/[controller]")]
     [ApiController]
     public class TargetController : ControllerBase
     {
+        readonly TargetRepository _targetRepository;
+
+        public TargetController()
+        {
+            _targetRepository = new TargetRepository();
+        }
+
+
         [HttpPost]
         public ActionResult AddTarget(CreateTargetRequest createRequest)
         {
@@ -26,5 +37,14 @@ namespace SwordAndFather.Controllers
 
             return Created($"/api/target/{newTarget.Id}", newTarget);
         }
+
+
+        [HttpGet("users")]
+        public ActionResult GetAll()
+        {
+            var users = _targetRepository.GetAll();
+            return Ok(users);
+        }
     }
+    
 }

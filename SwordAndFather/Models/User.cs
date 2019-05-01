@@ -13,12 +13,20 @@ namespace SwordAndFather.Models
         //    Password = password;
         //}
         // we are going to go with no constructor 
-       // public User() { }
+        // public User() { }
+
+        //public int Id { get; set; }
+        //public string Username { get; set; }
+        //public string Password { get; set; }
+
         
-        public int Id { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
+            public int Id { get; set; }
+            public string Username { get; set; }
+            public string Password { get; set; }
+
+            public List<Target> Targets { get; set; }
         
+
 
     }
 }
