@@ -21,10 +21,10 @@ namespace SwordAndFather.Controllers
         [HttpPost("register")]
         public ActionResult AddUser(CreateUserRequest createRequest)
         {
-            if (!_validator.Validate(createRequest))
-            {
-                return BadRequest(new { error = "users must have a username and password" });
-            }
+            //if (!_validator.Validate(createRequest))
+            //{
+            //    return BadRequest(new { error = "users must have a username and password" });
+            //}
 
             var newUser = _userRepository.AddUser(createRequest.Username, createRequest.Password);
 
@@ -37,6 +37,13 @@ namespace SwordAndFather.Controllers
         {
            var users =  _userRepository.GetAll();
             return Ok(users);
+        }
+
+        [HttpPost("delete/{id}")]
+        public ActionResult DeleteUsers(int id)
+        {
+             _userRepository.DeleteUser(id);
+            return Ok();
         }
 
     }
