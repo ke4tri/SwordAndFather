@@ -10,26 +10,22 @@ using SwordAndFather.Models;
 namespace SwordAndFather.Controllers
 {
 
-    
 
     [Route("api/[controller]")]
     [ApiController]
     public class TargetController : ControllerBase
     {
-        readonly TargetRepository _targetRepository;
+        readonly ITargetRepository _repo;
 
-        public TargetController()
+        public TargetController(ITargetRepository repo)
         {
-            _targetRepository = new TargetRepository();
+            _repo = repo;
         }
-
 
         [HttpPost]
         public ActionResult AddTarget(CreateTargetRequest createRequest)
         {
-            var repository = new TargetRepository();
-
-            var newTarget = repository.AddTarget(
+            var newTarget = _repo.AddTarget(
                 createRequest.Name,
                 createRequest.Location,
                 createRequest.FitnessLevel,
@@ -37,14 +33,42 @@ namespace SwordAndFather.Controllers
 
             return Created($"/api/target/{newTarget.Id}", newTarget);
         }
-
-
-        [HttpGet("users")]
-        public ActionResult GetAll()
-        {
-            var users = _targetRepository.GetAll();
-            return Ok(users);
-        }
     }
-    
+
+    //BELOW EXAMPLE WITHOUT DEPENDENCY INJECTION
+    //[Route("api/[controller]")]
+    //[ApiController]
+    //public class TargetController : ControllerBase
+    //{
+    //    readonly TargetRepository _targetRepository;
+
+    //    public TargetController()
+    //    {
+    //        _targetRepository = new TargetRepository();
+    //    }
+
+
+    //    [HttpPost]
+    //    public ActionResult AddTarget(CreateTargetRequest createRequest)
+    //    {
+    //        var repository = new TargetRepository();
+
+    //        var newTarget = repository.AddTarget(
+    //            createRequest.Name,
+    //            createRequest.Location,
+    //            createRequest.FitnessLevel,
+    //            createRequest.UserId);
+
+    //        return Created($"/api/target/{newTarget.Id}", newTarget);
+    //    }
+
+
+    //    [HttpGet("users")]
+    //    public ActionResult GetAll()
+    //    {
+    //        var users = _targetRepository.GetAll();
+    //        return Ok(users);
+    //    }
+    //}
+
 }

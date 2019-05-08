@@ -3,17 +3,47 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Dapper;
+using Microsoft.Extensions.Options;
 using SwordAndFather.Models;
 
 namespace SwordAndFather.Data
 {
-    public class TargetRepository
+
+    public interface ITargetRepository
     {
-        const string ConnectionString = "Server=localhost;Database=SwordAndFather;Trusted_Connection=True;";
+        Target AddTarget(string name, string location, FitnessLevel fitnessLevel, int userId);
+        IEnumerable<Target> GetAll();
+    }
+
+    public class StubTargetRepository : ITargetRepository
+    {
+        static readonly List<Target> Targets = new List<Target>();
 
         public Target AddTarget(string name, string location, FitnessLevel fitnessLevel, int userId)
         {
-            using (var db = new SqlConnection(ConnectionString))
+            var target = new Target() { Name = name };
+            Targets.Add(target);
+            return target;
+        }
+
+        public IEnumerable<Target> GetAll()
+        {
+            return Targets;
+        }
+    }
+
+    public class TargetRepository : ITargetRepository
+    {
+        readonly string _connectionString;
+
+        public TargetRepository(IOptions<DbConfiguration> dbConfig)
+        {
+            _connectionString = dbConfig.Value.ConnectionString;
+        }
+
+        public Target AddTarget(string name, string location, FitnessLevel fitnessLevel, int userId)
+        {
+            using (var db = new SqlConnection(_connectionString))
             {
                 var insertQuery = @"
                     INSERT INTO [dbo].[Targets]
@@ -49,7 +79,7 @@ namespace SwordAndFather.Data
 
         public IEnumerable<Target> GetAll()
         {
-            using (var db = new SqlConnection(ConnectionString))
+            using (var db = new SqlConnection(_connectionString))
             {
                 var targets = db.Query<Target>("Select * from Targets").ToList();
 
@@ -57,4 +87,58 @@ namespace SwordAndFather.Data
             }
         }
     }
+    //BELOW IS AN EXAMPLE WITH OUT DEPENDENCY INJECTION
+    //public class TargetRepository
+    //{
+    //    const string ConnectionString = "Server=localhost;Database=SwordAndFather;Trusted_Connection=True;";
+
+
+
+
+    //    public Target AddTarget(string name, string location, FitnessLevel fitnessLevel, int userId)
+    //    {
+    //        using (var db = new SqlConnection(ConnectionString))
+    //        {
+    //            var insertQuery = @"
+    //                INSERT INTO [dbo].[Targets]
+    //                           ([Location]
+    //                           ,[Name]
+    //                           ,[FitnessLevel]
+    //                           ,[UserId])
+    //                output inserted.*
+    //                     VALUES
+    //                           (@location
+    //                           ,@name
+    //                           ,@fitnessLevel
+    //                           ,@userId)";
+
+    //            var parameters = new
+    //            {
+    //                Name = name,
+    //                Location = location,
+    //                FitnessLevel = fitnessLevel,
+    //                UserId = userId
+    //            };
+
+    //            var newTarget = db.QueryFirstOrDefault<Target>(insertQuery, parameters);
+
+    //            if (newTarget != null)
+    //            {
+    //                return newTarget;
+    //            }
+
+    //            throw new Exception("Could not create target");
+    //        }
+    //    }
+
+    //    public IEnumerable<Target> GetAll()
+    //    {
+    //        using (var db = new SqlConnection(ConnectionString))
+    //        {
+    //            var targets = db.Query<Target>("Select * from Targets").ToList();
+
+    //            return targets;
+    //        }
+    //    }
+    //}
 }

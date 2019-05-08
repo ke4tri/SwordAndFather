@@ -10,6 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SwordAndFather.Data;
+
+//where we configure the host (Program.cs) file
+
 
 namespace SwordAndFather
 {
@@ -19,18 +23,25 @@ namespace SwordAndFather
         {
             Configuration = configuration;
         }
-
+        //Look up IConfiguration
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.Configure<DbConfiguration>(Configuration);
+
+            services.AddTransient<TargetRepository>();
+
+            //services.AddTransient<ITargetRepository>(builder => builder.GetService<StubTargetRepository>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
+            //tells asp.net 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -44,4 +55,9 @@ namespace SwordAndFather
             app.UseMvc();
         }
     }
+
+        public class DbConfiguration
+        {
+            public string ConnectionString { get; set; }
+        }
 }

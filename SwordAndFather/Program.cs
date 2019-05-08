@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+//THis is what runs when running. Host 
+
 namespace SwordAndFather
 {
     public class Program
@@ -19,6 +21,7 @@ namespace SwordAndFather
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+            
                 .UseStartup<Startup>();
     }
 }
